@@ -17,16 +17,16 @@ try :
             try :
                 ip=input(f"entrez les 3 premiers octets de votre ip (x.x.x):\n ")
                 for i in range(256):   # envoi un paquet a tout les hotes entre 0 et 255
-                    x=ip+f".{i}"
-                    paquet = IP(dst=x) / ICMP()
-                    print(x)
-                    send(paquet)
-                    reply = sr1(paquet, timeout=3)
-                if not (reply is None):
+                    x=ip+f".{i}"       # ajoute la valeur de l'itération actuelle a la fin de l'ip
+                    paquet = IP(dst=x) / ICMP() # assemble le paquet
+                    print(x) #print l'ip de l'itération actuelle
+                    send(paquet)                    
+                    reply = sr1(paquet, timeout=3)    #store la réponse du ping de l'itération actuelle et met un timeout de 3
+                if not (reply is None):               #check si la réponse est positive et print en conséquense
                     print(x, "is online")
                 else:
-                    print("Timeout waiting for %s" % paquet[IP].dst)
-            except KeyboardInterrupt :
+                    print("Timeout waiting for %s" % paquet[IP].dst) 
+            except KeyboardInterrupt :                
                 print(f"Ctrl + C pressed [·]\n Exiting...")
             except traceback :
                 print("Veuillez entrer une addresse ip sous le format x.x.x")
