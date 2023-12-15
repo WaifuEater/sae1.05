@@ -10,14 +10,13 @@ for i in range(len(common)):
     # envoi une trame a tout les ports de la liste common 
    """
 
-# envoi un paquet a tout les hotes entre 0 et 255
-# ip=input(f"entrez les 3 premiers octets de votre ip (x.x.x):\n ")
+
 try : 
-    
     def main(arg, ip) :
         if arg == "-a":
             try :
-                for i in range(256):
+                ip=input(f"entrez les 3 premiers octets de votre ip (x.x.x):\n ")
+                for i in range(256):   # envoi un paquet a tout les hotes entre 0 et 255
                     x=ip+f".{i}"
                     paquet = IP(dst=x) / ICMP()
                     print(x)
