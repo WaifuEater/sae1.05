@@ -14,7 +14,8 @@ for i in range(len(common)):
 try : 
     def main(arg, ip) :
         if arg == "-a":
-            try :
+            # début du programme
+            try :    
                 ip=input(f"entrez les 3 premiers octets de votre ip (x.x.x):\n ")
                 for i in range(256):   # envoi un paquet a tout les hotes entre 0 et 255
                     x=ip+f".{i}"       # ajoute la valeur de l'itération actuelle a la fin de l'ip
@@ -30,6 +31,7 @@ try :
                 print(f"Ctrl + C pressed [·]\n Exiting...")
             except traceback :
                 print("Veuillez entrer une addresse ip sous le format x.x.x")
+            # fin du programme 
     main()
 except KeyboardInterrupt :
                 print(f"Ctrl + C pressed [·]\n Exiting...")
