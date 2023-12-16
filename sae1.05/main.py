@@ -10,31 +10,48 @@ for i in range(len(common)):
     # envoi une trame a tout les ports de la liste common 
    """
 
+import argparse
 
-try : 
-    def main(arg, ip) :
-        if arg == "-a":
-            # début du programme
-            try :    
-                ip=input(f"entrez les 3 premiers octets de votre ip (x.x.x):\n ")
-                for i in range(256):   # fait pour envoyer un paquet a tout les hotes entre 0 et 255
-                    x=ip+f".{i}"       # ajoute la valeur de l'itération actuelle a la fin de l'ip
-                    paquet = IP(dst=x) / ICMP() # assemble le paquet
-                    print(x)           #print l'ip de l'itération actuelle
-                    send(paquet)                    
-                    reply = sr1(paquet, timeout=3)    #store la réponse du ping de l'itération actuelle et met un timeout de 3
-                if not (reply is None):               #check si la réponse est positive et print en conséquense
-                    print(x, "is online")
-                else:
-                    print("Timeout waiting for %s" % paquet[IP].dst) 
-            except KeyboardInterrupt :                
-                print(f"Ctrl + C pressed [·]\n Exiting...")
-            except traceback :
-                print("Veuillez entrer une addresse ip sous le format x.x.x")
-            # fin du programme 
+# Fonction pour vérifier une adresse IP
+def check_ip(ip):
+    try:
+        # Boucle pour vérifier chaque adresse de la plage
+        for i in range(256):
+            x = f"{ip}.{i}"
+            paquet = IP(dst=x) / ICMP() # Ajoute l'ip et le protocole icmp au paquet
+            print(x)
+            send(paquet)
+            reply = sr1(paquet, timeout=3)
+            # Vérifie si la réponse est reçue ou non
+            if reply is not None:
+                print(f"{x} is online")
+            else:
+                print("Timeout waiting for %s" % paquet[IP].dst)
+    except KeyboardInterrupt:
+        print("Ctrl + C pressed [·]\nExiting...")
+    except Exception as e:
+        print("Une erreur est survenue:", e)
+
+# Fonction principale
+def main():
+    # Définition des arguments en utilisant argparse
+    parser = argparse.ArgumentParser(description='Scan IP addresses.')
+    parser.add_argument('ip', type=str, help='Adresse IP à vérifier')
+    parser.add_argument('-a', action='store_true', help='Exécute la vérification pour toutes les adresses IP')
+
+    # Analyse des arguments de la ligne de commande
+    args = parser.parse_args()
+    ip_to_check = args.ip
+
+    # Vérification si l'option -a est utilisée pour exécuter la boucle for
+    if args.a:
+        check_ip(ip_to_check)  # Appel de la fonction pour vérifier toutes les adresses
+    else:
+        print(f"Adresse IP à vérifier : {ip_to_check}")  # Affichage de l'adresse IP spécifiée
+
+# Point d'entrée du script
+if __name__ == "__main__":
     main()
-except KeyboardInterrupt :
-                print(f"Ctrl + C pressed [·]\n Exiting...")
 
 
 
