@@ -11,14 +11,17 @@ for i in range(len(common)):
     # envoi une trame a tout les ports de la liste common 
    """
 
+# Fonction pour vérifier une adresse IP
 def check_ip(ip):
     try:
+        # Boucle pour vérifier chaque adresse de la plage
         for i in range(256):
             x = f"{ip}.{i}"
             paquet = IP(dst=x) / ICMP()
             print(x)
             send(paquet)
             reply = sr1(paquet, timeout=3)
+            # Vérifie si la réponse est reçue ou non
             if reply is not None:
                 print(f"{x} is online")
             else:
@@ -28,19 +31,24 @@ def check_ip(ip):
     except Exception as e:
         print("Une erreur est survenue:", e)
 
+# Fonction principale
 def main():
+    # Définition des arguments en utilisant argparse
     parser = argparse.ArgumentParser(description='Scan IP addresses.')
     parser.add_argument('ip', type=str, help='Adresse IP à vérifier')
     parser.add_argument('-t', action='store_true', help='Exécute la vérification pour toutes les adresses IP')
 
+    # Analyse des arguments de la ligne de commande
     args = parser.parse_args()
     ip_to_check = args.ip
 
+    # Vérification si l'option -t est utilisée pour exécuter la boucle for
     if args.t:
-        check_ip(ip_to_check)
+        check_ip(ip_to_check)  # Appel de la fonction pour vérifier toutes les adresses
     else:
-        print(f"Adresse IP à vérifier : {ip_to_check}")
+        print(f"Adresse IP à vérifier : {ip_to_check}")  # Affichage de l'adresse IP spécifiée
 
+# Point d'entrée du script
 if __name__ == "__main__":
     main()
 
