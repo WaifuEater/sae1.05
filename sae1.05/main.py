@@ -27,11 +27,11 @@ def check_mult_ip(ip):
             send(paquet)
             reply = sr1(paquet, timeout=3)
             if reply is not None:
-                print(f"{x} est ONLINE")
+                print(f"[✓] {x} est ONLINE [✓]")
             else:
-                print("%s n'est pas joignable pour le moment" % paquet[IP].dst)
+                print("[X] %s n'est pas joignable pour le moment [X]" % paquet[IP].dst)
     except Exception as e:
-        print("Une erreur est survenue:", e)
+        print("[?] Une erreur est survenue: [?]", e)
 
 # Fonction pour vérifier une seule adresse IP
 def check_ip(ip):
@@ -41,11 +41,11 @@ def check_ip(ip):
         send(paquet)
         reply = sr1(paquet, timeout=3)
         if reply is not None:
-            print(f"{ip} est ONLINE")
+            print(f"[✓] {ip} est ONLINE [✓]")
         else:
-            print("%s n'est pas joignable pour le moment" % paquet[IP].dst)
+            print("[X] %s n'est pas joignable pour le moment [X]" % paquet[IP].dst)
     except Exception as e:
-        print("Une erreur est survenue:", e)
+        print("[?] Une erreur est survenue: [?]", e)
 
 # Fonction principale
 def main():
