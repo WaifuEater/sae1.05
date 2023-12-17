@@ -1,5 +1,6 @@
 from scapy.all import *
 import argparse
+import signal
 
 # common = [80, 443, 67, 68, 20, 21, 23, 22, 53, 8080, 123, 25, 3389, 110, 554, 445, 587, 993, 137, 139, 8008, 500, 143, 161, 162, 389, 1434, 5900] 
 # liste des 28 ports les plus utilisés
@@ -10,6 +11,11 @@ for i in range(len(common)):
     send(paquet)
     # envoi une trame a tout les ports de la liste common 
    """
+
+# Fonction pour gérer le signal d'interruption (Ctrl + C)
+def signal_handler(sig, frame):
+    print("\nCtrl + C pressed [·]\nExiting...")
+    sys.exit(0)
 
 # Fonction pour vérifier une adresse IP
 def check_ip(ip):
@@ -41,6 +47,9 @@ def main():
     # Analyse des arguments de la ligne de commande
     args = parser.parse_args()
     ip_to_check = args.ip
+
+    # Gestion du signal d'interruption (Ctrl + C)
+    signal.signal(signal.SIGINT, signal_handler)
 
     # Vérification si l'option -t est utilisée pour exécuter la boucle for
     if args.t:
