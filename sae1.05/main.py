@@ -122,7 +122,7 @@ def main():
     parser.add_argument('-a', action='store_true', help='Execute la vérification pour une seule adresse IP')
     parser.add_argument('-l', action='store_true', help='Liste les addresse ip ayant répondu')
     parser.add_argument('-po', action='store_true', help='Execute la vérification des 25 ports les plus communs')
-    parser.add_argument('-p', action='store_true', help=f"Ecoute le traffic ARP pour trouver l'hote") 
+    parser.add_argument('-p', action='store_true', help=f"Ecoute le traffic ARP et renvoi si l'ip est présente dans le traffic. | Si l'ip y figure, affiche l'addresse MAC correspondante") 
  
 
 
