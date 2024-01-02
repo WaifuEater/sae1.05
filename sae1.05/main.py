@@ -20,30 +20,33 @@ def signal_handler(sig, frame):
     print("\nCtrl + C pressed [·]\nExiting...")
     sys.exit(0)
 classe=0
+
+
 # Fonction pour vérifier une plage d'adresses IP
 def check_mult_ip(ip):
     try:
         if "/" in ip:
             ip, subnet = ip.split("/")
-            octets = ip.split(".")
             subnet = int(subnet)
-            binary_ip = ''.join([format(int(octet), '08b') for octet in octets])
-            network_address = '.'.join([str(int(binary_ip[i:i+subnet], 2)) for i in range(0, 32, subnet)])
-            print("Adresse réseau: ", "ip")
-        # Reste du code pour la vérification des adress
-        for i in range(3):
-            x = f"{ip}.{i}"
-            paquet = IP(dst=x) / ICMP()
-            print("scan de ", x)
-            send(paquet)
-            reply = sr1(paquet, timeout=3)
-            if reply is not None:
-                ip_valides.append(i)
-                print(f"[✓] {x} est ONLINE [✓]")
-            else:
-                print("[X] %s n'est pas joignable pour le moment [X]" % paquet[IP].dst)
+            network = ipaddress.ip_network(ip + '/' + str(subnet), strict=False)
+
+            for subnet_ip in network.subnets(new_prefix=subnet):
+                for ip in subnet_ip.hosts():
+                    paquet = IP(dst=str(ip)) / ICMP()
+                    print("Scan de ", ip)
+                    send(paquet)
+                    reply = sr1(paquet, timeout=3)
+                    if reply is not None:
+                        ip_valides.append(str(ip))
+                        print(f"[✓] {ip} est ONLINE [✓]")
+                    else:
+                        print("[X] %s n'est pas joignable pour le moment [X]" % str(ip))
+        else:
+            # Reste du code pour la vérification d'une seule adresse IP
+            check_ip(ip)
     except Exception as e:
-        print("[?] Une erreur est survenue: [?] \n Vérifiez que le format de ip est x.x.x.x/classe ou x.x.x \n", e)
+        print("[?] Une erreur est survenue: [?] \n Vérifiez que le format de l'adresse IP est correct.\n", e)
+
 
 # Fonction pour vérifier une seule adresse IP
 def check_ip(ip):
@@ -60,7 +63,8 @@ def check_ip(ip):
         print("[?] Une erreur est survenue: [?]", e)
 
 
-def port_check(ip):
+''' beugé 
+    def port_check(ip):
     ports_valides = list()
     try:
         for i in common :
@@ -76,7 +80,7 @@ def port_check(ip):
                 print("[X] Le port %s n'est pas joignable pour le moment [X]" % i)
     except Exception as e:
         print("[?] Une erreur est survenue: [?] \n ", e)
-
+'''
 
 def arp_check(ip):
     ip_found = False  # Indique si l'IP a été trouvée
@@ -121,9 +125,10 @@ def main():
     parser.add_argument('-t', action='store_true', help='Exécute la vérification pour toutes les adresses IP')
     parser.add_argument('-a', action='store_true', help='Execute la vérification pour une seule adresse IP')
     parser.add_argument('-l', action='store_true', help='Liste les addresse ip ayant répondu')
-    parser.add_argument('-po', action='store_true', help='Execute la vérification des 25 ports les plus communs')
+    # parser.add_argument('-po', action='store_true', help='Execute la vérification des 25 ports les plus communs')
     parser.add_argument('-p', action='store_true', help=f"Ecoute le traffic ARP et renvoi si l'ip est présente dans le traffic. | Si l'ip y figure, affiche l'addresse MAC correspondante") 
- 
+    parser.add_argument('-x', action='store_true', help='Exporter les résultats dans un fichier')
+    parser.add_argument('-o', '--output_file', type=str, help='Nom du fichier de sortie')
 
 
     # Analyse des arguments de la ligne de commande
@@ -133,6 +138,7 @@ def main():
     # Gestion du signal d'interruption (Ctrl + C)
     signal.signal(signal.SIGINT, signal_handler)
 
+    
     # Choix du mode de vérification en fonction des arguments
     if args.t:
         check_mult_ip(ip_to_check)
@@ -142,11 +148,10 @@ def main():
         check_ip(ip_to_check)
     elif args.l:
         print(ip_valides)
-    if args.po:
-        port_check(ip_to_check)
+    # elif args.po:
+        # port_check(ip_to_check)
     else:
         print(f"Adresse IP à vérifier : {ip_to_check}")
-    signal.signal(signal.SIGINT, signal_handler)
     
 
 # Point d'entrée du script
