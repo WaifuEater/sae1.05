@@ -63,7 +63,7 @@ def check_ip(ip):
         print("[?] Une erreur est survenue: [?]", e)
 
 
-''' beugé 
+''' beugé et pas nécéssaire
     def port_check(ip):
     ports_valides = list()
     try:
@@ -82,7 +82,8 @@ def check_ip(ip):
         print("[?] Une erreur est survenue: [?] \n ", e)
 '''
 
-def arp_check(ip):
+# pour le truc arp
+def arp_check(ip): 
     ip_found = False  # Indique si l'IP a été trouvée
 
     def arp_display(pkt):
