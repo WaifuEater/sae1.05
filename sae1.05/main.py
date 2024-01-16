@@ -150,42 +150,31 @@ def check_ip(ip, export_file=None):
 
 
 
+def arp_display(pkt):
+    if ARP in pkt and pkt[ARP].op in (1, 2):  # Si le paquet est une requête ou une réponse ARP
+        return f"ARP {pkt[ARP].psrc} -> {pkt[ARP].pdst} ({pkt[ARP].hwsrc})"
+
+
 
 def arp_check(ip, export_file=None):
-    ip_found = False
-
-    def arp_display(pkt):
-        nonlocal ip_found
-        if ARP in pkt and pkt[ARP].op == 2 and pkt[ARP].psrc == ip:
-            print(f"ARP from: {pkt[ARP].psrc} to {pkt[ARP].pdst}")
-            print(f"{ip} est bien présente dans le trafic ARP.")
-            mac_address = pkt[ARP].hwsrc
-            print(f"Adresse MAC de {ip}: {mac_address}")
-            ip_found = True
-            sys.exit(0)
-
-
-# La fonction arp_check vérifie le trafic ARP pour une adresse IP spécifique. 
-# Elle utilise une fonction interne arp_display pour afficher les détails de l'ARP si la correspondance est trouvée.
-
-
     try:
         print("Écoute du trafic ARP...")
         duration = int(input("Entrez la durée d'écoute en secondes : "))
-        start_time = time.time()
-        while time.time() - start_time < duration:
-            ans, _ = srp(Ether(dst="ff:ff:ff:ff:ff:ff") / ARP(pdst=ip), timeout=2, verbose=False)
-            for _, pkt in ans:
-                arp_display(pkt)
-            time.sleep(1)
+        
+        # Utilisation de la fonction sniff de Scapy avec le paramètre prn
+        ans = sniff(filter=f'arp and host {ip}', timeout=duration, prn=arp_display, store=0)
 
-        if not ip_found:
+        if ans:
+            print(f"{ip} est bien présente dans le trafic ARP.")
+            mac_address = ans[0][ARP].hwsrc
+            print(f"Adresse MAC de {ip}: {mac_address}")
+        else:
             print(f"Aucune activité ARP pour l'adresse IP {ip} détectée pendant {duration} secondes.")
     except Exception as e:
         print("[?] Une erreur est survenue lors de l'écoute ARP: [?]", e)
 
-# Cette partie de la fonction effectue une écoute du trafic ARP pendant une durée spécifiée. 
-# Elle utilise Scapy pour envoyer des requêtes ARP et analyse les réponses pour trouver l'adresse MAC correspondante à l'adresse IP spécifiée.
+
+
 
 
 
@@ -193,9 +182,9 @@ def arp_check(ip, export_file=None):
 def main():
     parser = argparse.ArgumentParser(description="Scan d'ip")
     parser.add_argument('ip', type=str, help='Adresse IP à vérifier')
-    parser.add_argument('-t','--num_hosts', type=int, default=256, help="Scan une range d'ip : si ip/classe -t -> scan selon le format de 0-255 \n et si ip -t x -> scan x hotes.")
+    parser.add_argument('-t','--num_hosts', type=int, default=256, help="Scan une range d'ip : si ip/classe -t -> scan selon le format de 0-255 \n et si ip/classe ou non -t x -> scan x hotes.")
     parser.add_argument('-a', action='store_true', help="Execute la vérification d'une seule adresse IP")
-    parser.add_argument('-p', action='store_true', help="Ecoute le traffic ARP et renvoie si l'IP est présente dans le traffic. Si l'IP y figure, affiche l'adresse MAC correspondante") 
+    parser.add_argument('-p', action='store_true', help="Ecoute le traffic ARP pour un temp donné et renvoie si l'IP est présente dans le traffic. Si l'IP y figure, affiche l'adresse MAC correspondante") 
     parser.add_argument('-x', '--output_file', type=argparse.FileType('w'), help="Exporte l'output de la commande dans un fichier spécifié, par exemple : ip -x /path/du/fichier ou fichier, si non éxistant il en créera un.")
     
     args = parser.parse_args()
@@ -203,14 +192,12 @@ def main():
 
     signal.signal(signal.SIGINT, signal_handler)
     
-    if args.a:
+    if args.p:
+        arp_check(ip_to_check, export_file=args.output_file)
+    elif args.a:
         check_ip(ip_to_check, export_file=args.output_file)
     elif args.num_hosts:
         check_mult_ip(ip_to_check, export_file=args.output_file, num_hosts=args.num_hosts)
-    elif args.p:
-        arp_check(ip_to_check, export_file=args.output_file)
-    elif args.l:
-        print(ip_valides)
     else:
         print(f"Adresse IP à vérifier : {ip_to_check}")
 
