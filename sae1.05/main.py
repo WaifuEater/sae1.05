@@ -149,27 +149,17 @@ def check_ip(ip, export_file=None):
 # Fonction que j'ai faite sur le programme, elle n'as donc pas vraiment évolué avec le reste a part pour l'export de fichier et le timeout
 
 
-
 def arp_display(pkt):
     if ARP in pkt and pkt[ARP].op in (1, 2):  # Si le paquet est une requête ou une réponse ARP
         return f"ARP {pkt[ARP].psrc} -> {pkt[ARP].pdst} ({pkt[ARP].hwsrc})"
-
 
 
 def arp_check(ip, export_file=None):
     try:
         print("Écoute du trafic ARP...")
         duration = int(input("Entrez la durée d'écoute en secondes : "))
-        
         # Utilisation de la fonction sniff de Scapy avec le paramètre prn
         ans = sniff(filter=f'arp and host {ip}', timeout=duration, prn=arp_display, store=0)
-
-        if ans:
-            print(f"{ip} est bien présente dans le trafic ARP.")
-            mac_address = ans[0][ARP].hwsrc
-            print(f"Adresse MAC de {ip}: {mac_address}")
-        else:
-            print(f"Aucune activité ARP pour l'adresse IP {ip} détectée pendant {duration} secondes.")
     except Exception as e:
         print("[?] Une erreur est survenue lors de l'écoute ARP: [?]", e)
 
